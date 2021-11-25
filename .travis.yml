@@ -1,0 +1,28 @@
+language: generic
+
+dist: trusty
+sudo: false
+
+env:
+  global:
+    - HELM_VERSION="v2.11.0"
+
+install:
+  - sudo pip install git-semver
+  - wget http://storage.googleapis.com/kubernetes-helm/helm-${HELM_VERSION}-linux-amd64.tar.gz -O /tmp/helm.tar.gz
+  - sudo tar xzf /tmp/helm.tar.gz -C /usr/bin/ --strip-components=1
+  - sudo chmod +x /usr/bin/helm
+
+before_deploy:
+  - helm init --client-only
+  - helm repo add stable https://kubernetes-charts.storage.googleapis.com
+
+deploy:
+  provider: script
+  skip_cleanup: true
+  script: .travis/build.sh
+  on:
+    branch: master
+branches:
+  only:
+    - master
